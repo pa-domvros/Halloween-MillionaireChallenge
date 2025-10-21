@@ -500,6 +500,9 @@
     </div>
     
 
+    <!-- Question SFX -->
+    <audio id="question-sfx" src="music.mp3" preload="auto" playsinline></audio>
+
     <script>
         // --- JAVASCRIPT LOGIC ---
 
@@ -592,9 +595,19 @@
         const audiencePopup = document.getElementById('audience-popup');
         const safeSpotPopup = document.getElementById('safe-spot-popup');
         const safePrizeDisplay = document.getElementById('safe-prize');
+        const sfxAudio = document.getElementById('question-sfx');
 
 
         // 4. UTILITY FUNCTION
+        function playSFX() {
+            if (!sfxAudio) return;
+            try {
+                sfxAudio.pause();
+                sfxAudio.currentTime = 0;
+                const p = sfxAudio.play();
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (e) { /* ignore playback errors */ }
+        }
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -633,6 +646,7 @@
             lifeline5050Btn.textContent = '50:50';
             lifelineAudienceBtn.textContent = 'Ask the Audience';
             
+            playSFX();
             loadQuestion();
         }
 
@@ -670,6 +684,9 @@
                  offerSecurePoint();
                  return; // Pause game execution to wait for player choice
             }
+
+            // Play cue before the new question appears
+            if (questionIndex > 0) playSFX();
 
             // Reset button styles and enable them 
             answerButtons.forEach(btn => {
@@ -848,7 +865,18 @@
             lifelineAudienceBtn.textContent = 'Audience (USED)';
         }
 
-        // Initial load
+        
+        // Best-effort audio unlock on first user interaction
+        document.addEventListener('click', function unlockOnce() {
+            if (!sfxAudio) return;
+            try {
+                sfxAudio.muted = false;
+                // Preload/prime without playing
+                sfxAudio.load();
+            } catch (e) {}
+            document.removeEventListener('click', unlockOnce);
+        }, { once: true, capture: true });
+// Initial load
         document.addEventListener('DOMContentLoaded', loadLevel);
     </script>
 
