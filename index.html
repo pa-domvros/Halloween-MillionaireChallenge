@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Wants to Be a Millionaire — Spooky English Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS STYLING --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0d0d0d;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .main-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .halloween-title {
+            font-family: 'Creepster', cursive;
+            color: #ff6600;
+            text-shadow: 2px 2px 4px #8b0000;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        
+        .halloween-subtitle {
+            font-family: 'Creepster', cursive;
+            color: #ffcc80;
+            text-shadow: 1px 1px 3px #8b0000;
+            font-size: 1.6em;
+            margin-top: -10px;
+            text-align: center;
+            display: block;
+        }
+
+.game-container {
+            width: 100%;
+            background-color: #1a1a1a;
+            border: 5px solid #ff6600;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.7);
+            margin-bottom: 20px;
+        }
+
+        /* Controls and Score */
+        .controls-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        #level-select, #start-button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            font-weight: <strong>bold</strong>;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 5px;
+        }
+        #level-select { background-color: #555; color: white; }
+        #start-button { background-color: #8b0000; color: white; }
+        #start-button:hover { background-color: #b30000; }
+
+        .level-indicator {
+            background-color: #ff6600;
+            padding: 5px 10px;
+            font-weight: <strong>bold</strong>;
+            color: #0d0d0d;
+        }
+
+        /* Lifelines */
+        .lifeline-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        .lifeline-btn {
+            background-color: #004d40;
+            color: white;
+            padding: 10px 15px;
+            border: 2px solid #00897b;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: <strong>bold</strong>;
+        }
+        .lifeline-btn:disabled {
+            background-color: #444;
+            border-color: #666;
+            cursor: not-allowed;
+            color: #bbb;
+        }
+
+        /* Question and Answers */
+        .question-box {
+            background-color: #000;
+            padding: 25px;
+            border: 3px solid #ff6600;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #question-text {
+            font-size: 1.3em;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .answers-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            border: 2px solid #555;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s, opacity 0.5s;
+        }
+
+        .answer-btn.hidden-by-5050 {
+            opacity: 0.2; 
+            pointer-events: none; 
+            background-color: #1a1a1a;
+            color: #777;
+        }
+        
+        /* State changes for answers */
+        .correct {
+            background-color: #008000 !important;
+            border-color: #00ff00 !important;
+        }
+        .incorrect {
+            background-color: #8b0000 !important;
+            border-color: #ff0000 !important;
+        }
+
+        /* Result and Pop-up */
+        #result-message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: <strong>bold</strong>;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none !important; 
+        }
+
+        /* Full Screen Pop-up containers */
+        #audience-popup, #safe-spot-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(139, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .warning-box {
+            background: #1a1a1a;
+            border: 5px solid #ff6600;
+            padding: 40px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .warning-box h3 {
+            color: #ff6600;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-family: 'Creepster', cursive;
+        }
+        .warning-box p {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+        }
+        .warning-box button {
+            background-color: #8b0000;
+            color: white;
+            padding: 10px 20px;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        .warning-box button:hover {
+            background-color: #ff6600;
+        }
+        
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            color: #ff6600;
+            font-size: 0.9em;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content-wrapper">
+        <div class="game-container">
+            <header>
+                <h1 class="halloween-title">🎃 Who Wants to Be a Millionaire 👻</h1>
+<div class="halloween-subtitle">Spooky English Challenge</div>
+            </header>
+
+            <div class="controls-area">
+                <label for="level-select">Select Level:</label>
+                <select id="level-select" onchange="loadLevel()">
+                    <option value="A1A2">A1-A2 (Beginner)</option>
+                    <option value="B1B2">B1-B2 (Intermediate)</option>
+                    <option value="C1C2">C1-C2 (Advanced)</option>
+                </select>
+                <button id="start-button" onclick="startGame()">Start A1-A2 Game</button>
+            </div>
+
+            <div id="game-area" class="hidden">
+                <div class="score-board">
+                    <h2>Prize: <span id="current-prize">£100</span></h2>
+                    <div class="level-indicator" id="current-level">A1-A2</div>
+                </div>
+
+                <div class="lifeline-container">
+                    <button id="lifeline-5050" class="lifeline-btn" onclick="use5050()">50:50</button>
+                    <button id="lifeline-audience" class="lifeline-btn" onclick="useAudience()">Ask the Audience</button>
+                </div>
+                
+                <div class="question-box">
+                    <p id="question-text">Select your level and click "Start Game" to begin!</p>
+                </div>
+
+                <div class="answers-container">
+                    <button class="answer-btn" id="A" onclick="checkAnswer('A')" disabled>A:</button>
+                    <button class="answer-btn" id="B" onclick="checkAnswer('B')" disabled>B:</button>
+                    <button class="answer-btn" id="C" onclick="checkAnswer('C')" disabled>C:</button>
+                    <button class="answer-btn" id="D" onclick="checkAnswer('D')" disabled>D:</button>
+                </div>
+            </div>
+
+            <div id="result-message" class="hidden">
+                </div>
+        </div>
+        
+        <footer>
+            🎃🧙Created by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved 🧙🎃
+        </footer>
+    </div>
+
+    <div id="audience-popup" class="hidden"> 
+        <div class="warning-box">
+            <h3>Attention, Audience!</h3>
+            <p>You have been asked for help. Please answer only if you are <strong>100% certain</strong>!</p>
+            <button onclick="document.getElementById('audience-popup').classList.add('hidden')">Return to the Question</button>
+        </div>
+    </div>
+
+    <div id="safe-spot-popup" class="hidden"> 
+        <div class="warning-box">
+            <h3>Secure Your Winnings!</h3>
+            <p>You have reached a <strong>Secure Point</strong>. Would you like to <strong>walk away</strong> with <strong id="safe-prize">£X</strong>, or <strong>risk it all</strong> and continue the game?</p>
+            <button onclick="stopGame(true)">Accept and Walk Away</button>
+            <button onclick="stopGame(false)">Reject and Continue</button>
+        </div>
+    </div>
+    
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+
+        // 1. GAME DATA (Questions and Prizes)
+        const PRIZES = ["£100", "£200", "£300", "£500", "£1,000", "£2,000", "£4,000", "£8,000", "£16,000", "£32,000", "£64,000", "£125,000", "£250,000", "£500,000", "£1,000,000"];
+        
+        // Secure Points (Question Index): Q5 is index 4, Q10 is index 9
+        const SECURE_POINTS = [4, 9]; 
+
+        const QUESTIONS = {
+            A1A2: [
+                { q: "Choose the correct verb: Every Halloween, children ___ for sweets.", answers: { A: "ask", B: "asks", C: "asking", D: "is ask" }, correct: "A" },
+                { q: "What is the opposite of 'light'?", answers: { A: "Happy", B: "Dark", C: "Small", D: "Fast" }, correct: "B" },
+                { q: "Complete the sentence: There ___ a big, scary ghost in the house.", answers: { A: "are", B: "were", C: "is", D: "be" }, correct: "C" },
+                { q: "Fill in the blank: I like apples ___ I don't like bananas.", answers: { A: "and", B: "so", C: "but", D: "or" }, correct: "C" },
+                { q: "Which word describes something that is very frightening?", answers: { A: "Tidy", B: "Delicious", C: "Terrifying", D: "Quiet" }, correct: "C" }, // Q5 - Secure Point 1
+                { q: "Choose the correct preposition: The bat flies ___ the night.", answers: { A: "on", B: "in", C: "at", D: "by" }, correct: "B" },
+                { q: "What is the plural of 'witch'?", answers: { A: "witchs", B: "witchies", C: "witches", D: "witch's" }, correct: "C" },
+                { q: "I ___ eat a lot of sweets yesterday.", answers: { A: "didn't", B: "don't", C: "no", D: "not" }, correct: "A" },
+                { q: "The spider is ___ the table.", answers: { A: "under", B: "in", C: "to", D: "with" }, correct: "A" },
+                { q: "He is wearing a scary mask, ___?", answers: { A: "isn't he", B: "he is", C: "does he", D: "is he" }, correct: "A" }, // Q10 - Secure Point 2
+                { q: "What is a synonym for 'costume'?", answers: { A: "Food", B: "Outfit", C: "House", D: "Book" }, correct: "B" },
+                { q: "We ___ go trick-or-treating next week.", answers: { A: "are going to", B: "go", C: "going", D: "went" }, correct: "A" },
+                { q: "She ___ seen a ghost before.", answers: { A: "have", B: "has", C: "is", D: "did" }, correct: "B" },
+                { q: "The movie was very ___.", answers: { A: "scare", B: "scared", C: "scaring", D: "scary" }, correct: "D" },
+                { q: "I want to ___ an enormous pumpkin.", answers: { A: "buy", B: "buying", C: "buys", D: "to buy" }, correct: "A" } // Q15 - Jackpot
+            ],
+            B1B2: [
+                { q: "Choose the correct conditional: If I ___ a vampire, I would sleep all day.", answers: { A: "am", B: "was", C: "were", D: "had been" }, correct: "C" },
+                { q: "The ghost suddenly ___ up in the attic.", answers: { A: "came out", B: "showed off", C: "popped up", D: "ran into" }, correct: "C" },
+                { q: "Despite ___ scared, she opened the old, creaky door.", answers: { A: "to be", B: "being", C: "be", D: "she was" }, correct: "B" },
+                { q: "The word 'elicit' is closest in meaning to:", answers: { A: "Ignore", B: "Extract", C: "Refuse", D: "Prevent" }, correct: "B" },
+                { q: "She has been working on her costume ___ three hours.", answers: { A: "since", B: "for", C: "in", D: "during" }, correct: "B" }, // Q5 - Secure Point 1
+                { q: "Which word means 'deeply mysterious or secretive'?", answers: { A: "Obvious", B: "Eerie", C: "Simple", D: "Routine" }, correct: "B" },
+                { q: "Choose the correct tag question: Vampires don't like garlic, ___?", answers: { A: "do they", B: "don't they", C: "are they", D: "is it" }, correct: "A" },
+                { q: "We arrived late, ___ the film had already started.", answers: { A: "so", B: "but", C: "although", D: "consequently" }, correct: "D" },
+                { q: "I wish I ___ fly like a bat.", answers: { A: "can", B: "could", C: "would", D: "will" }, correct: "B" },
+                { q: "Hardly had I opened the door ___ the creepy music started.", answers: { A: "then", B: "than", C: "when", D: "as" }, correct: "C" }, // Q10 - Secure Point 2
+                { q: "The zombies were shambling ___ the narrow street.", answers: { A: "in spite of", B: "through", C: "between", D: "due to", }, correct: "B" },
+                { q: "A 'gargoyle' is a type of decorative water ___.", answers: { A: "pipe", B: "spout", C: "hole", D: "filter" }, correct: "B" },
+                { q: "He ought ___ told us about the hidden crypt.", answers: { A: "to have", B: "have", C: "had", D: "to has" }, correct: "A" },
+                { q: "The haunted house turned out to be less scary than ___.", answers: { A: "expected", B: "expecting", C: "we expected", D: "we were expected" }, correct: "C" },
+                { q: "A person who is 'superstitious' believes in: ", answers: { A: "Science", B: "Logic", C: "Luck/Magic", D: "Politics" }, correct: "C" } // Q15 - Jackpot
+            ],
+            C1C2: [
+                { q: "The old castle stood on a hill, its dilapidated structure a ___ of a bygone era.", answers: { A: "vestige", B: "parody", C: "glitch", D: "pretext" }, correct: "A" },
+                { q: "Choose the correct causative: She ___ her spooky decorations professionally installed.", answers: { A: "made", B: "got", C: "must have", D: "had" }, correct: "D" },
+                { q: "The writer's style is often described as 'lurid,' meaning it is:", answers: { A: "Pleasantly calm", B: "Brightly colourful", C: "Shockingly sensational", D: "Subtly clever" }, correct: "C" },
+                { q: "Hardly ___ entered the room when the lights flickered and went out.", answers: { A: "had he", B: "he had", C: "did he", D: "he did" }, correct: "A" },
+                { q: "He felt a strong sense of ___ as he explored the abandoned asylum.", answers: { A: "apathy", B: "trepidation", C: "complacency", D: "audacity" }, correct: "B" }, // Q5 - Secure Point 1
+                { q: "The spectral entity seemed to ___ without rhyme or reason.", answers: { A: "transpire", B: "materialise", C: "evince", D: "concur" }, correct: "B" },
+                { q: "The ghost had evidently been a victim of a terrible accident, a truly ___ fate.", answers: { A: "propitious", B: "lamentable", C: "superfluous", D: "exuberant" }, correct: "B" },
+                { q: "We must proceed with utmost ___, as the danger is palpable.", answers: { A: "recklessness", B: "cautiousness", C: "caution", D: "precautious" }, correct: "C" },
+                { q: "The mansion had fallen into ___ after decades of neglect.", answers: { A: "abeyance", B: "disrepair", C: "soliloquy", D: "affliction" }, correct: "B" },
+                { q: "Were the police to discover the body, the situation ___ complicated.", answers: { A: "will become", B: "would become", C: "would have become", D: "becomes" }, correct: "B" }, // Q10 - Secure Point 2
+                { q: "His argument, though clever, seemed to circumvent the core ___ of the investigation.", answers: { A: "tenet", B: "axiom", C: "crux", D: "periphery" }, correct: "C" },
+                { q: "The creature was ___ to the light, fleeing rapidly into the shadows.", answers: { A: "averse", B: "aversion", C: "aversely", D: "averseness" }, correct: "A" },
+                { q: "She was so frightened she couldn't ___ a single coherent word.", answers: { A: "utter", B: "vent", C: "speak out", D: "elocute" }, correct: "A" },
+                { q: "The sudden storm took everyone by ___, ruining the outdoor party.", answers: { A: "surprise", B: "risk", C: "control", D: "accident" }, correct: "A" },
+                { q: "A word meaning 'to examine closely and critically' is:", answers: { A: "Glance", B: "Scrutinize", C: "Observe", D: "Peruse" }, correct: "B" } // Q15 - Jackpot
+            ]
+        };
+
+        // 2. GAME STATE VARIABLES
+        let currentLevelKey = 'A1A2';
+        let currentQuestions = [];
+        let questionIndex = 0;
+        let isGameActive = false;
+        let lifelines = {
+            '5050': true,
+            'audience': true 
+        };
+        const allAnswerKeys = ['A', 'B', 'C', 'D'];
+
+        // Track which secure-point prompts have already been shown (to avoid loops)
+        let acknowledgedSecurePoints = new Set(); // <<< FIX
+
+
+        // 3. DOM ELEMENTS
+        const gameArea = document.getElementById('game-area');
+        const questionText = document.getElementById('question-text');
+        const currentPrize = document.getElementById('current-prize');
+        const resultMessage = document.getElementById('result-message');
+        const answerButtons = allAnswerKeys.map(id => document.getElementById(id));
+        const levelIndicator = document.getElementById('current-level');
+        const startButton = document.getElementById('start-button');
+        const levelSelect = document.getElementById('level-select');
+        const lifeline5050Btn = document.getElementById('lifeline-5050');
+        const lifelineAudienceBtn = document.getElementById('lifeline-audience');
+        const audiencePopup = document.getElementById('audience-popup');
+        const safeSpotPopup = document.getElementById('safe-spot-popup');
+        const safePrizeDisplay = document.getElementById('safe-prize');
+
+
+        // 4. UTILITY FUNCTION
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 5. GAME FUNCTIONS
+
+        /** Loads the question set for the selected level. */
+        function loadLevel() {
+            currentLevelKey = levelSelect.value;
+            levelIndicator.textContent = currentLevelKey;
+            resetGame();
+            startButton.textContent = 'Start ' + currentLevelKey + ' Game';
+        }
+
+        /** Initializes and starts the game. */
+        function startGame() {
+            acknowledgedSecurePoints.clear(); // <<< FIX
+            const levelQuestions = QUESTIONS[currentLevelKey];
+            currentQuestions = shuffleArray(levelQuestions.slice());
+            questionIndex = 0;
+            isGameActive = true;
+            lifelines = { '5050': true, 'audience': true };
+
+            // UI Updates
+            gameArea.classList.remove('hidden');
+            resultMessage.classList.add('hidden');
+            startButton.textContent = 'Restart Game';
+            
+            // Set up lifeline buttons
+            lifeline5050Btn.disabled = false;
+            lifelineAudienceBtn.disabled = false;
+            lifeline5050Btn.textContent = '50:50';
+            lifelineAudienceBtn.textContent = 'Ask the Audience';
+            
+            loadQuestion();
+        }
+
+        /** Resets the game state and UI elements. */
+        function resetGame() {
+            acknowledgedSecurePoints.clear(); // <<< FIX
+            questionIndex = 0;
+            isGameActive = false;
+            currentPrize.textContent = PRIZES[0];
+            questionText.textContent = 'Select your level and click "Start Game" to begin!';
+            answerButtons.forEach(btn => {
+                btn.textContent = ``;
+                btn.classList.remove('correct', 'incorrect', 'hidden-by-5050');
+                btn.disabled = true;
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto'; 
+            });
+            gameArea.classList.add('hidden');
+            resultMessage.classList.add('hidden');
+            audiencePopup.classList.add('hidden');
+            safeSpotPopup.classList.add('hidden'); // Ensure safety pop-up is hidden
+            lifeline5050Btn.disabled = true;
+            lifelineAudienceBtn.disabled = true;
+        }
+
+        /** Displays the current question and answers. */
+        function loadQuestion() {
+            if (questionIndex >= currentQuestions.length) {
+                endGame('win');
+                return;
+            }
+
+            // Check for Secure Point *before* loading the question
+            if (SECURE_POINTS.includes(questionIndex) && !acknowledgedSecurePoints.has(questionIndex) && questionIndex !== 0) { // <<< FIX
+                 offerSecurePoint();
+                 return; // Pause game execution to wait for player choice
+            }
+
+            // Reset button styles and enable them 
+            answerButtons.forEach(btn => {
+                btn.classList.remove('correct', 'incorrect', 'hidden-by-5050');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            });
+            
+            // Re-enable lifelines for the new question if they haven't been used
+            if(lifelines['5050']) lifeline5050Btn.disabled = false;
+            if(lifelines['audience']) lifelineAudienceBtn.disabled = false;
+
+
+            // Update prize and question
+            const qData = currentQuestions[questionIndex];
+            currentPrize.textContent = PRIZES[questionIndex] || "The Jackpot!";
+            questionText.textContent = `Q${questionIndex + 1}: ${qData.q}`;
+
+            // Update answer buttons
+            answerButtons.forEach(btn => {
+                const key = btn.id;
+                btn.textContent = `${key}: ${qData.answers[key]}`;
+            });
+        }
+
+        /** Prompts the player at a secure point (Q5 or Q10). */
+        function offerSecurePoint() {
+            // Mark this secure point as acknowledged so it won't trigger again immediately
+            acknowledgedSecurePoints.add(questionIndex); // <<< FIX
+            isGameActive = false; // Temporarily pause game
+
+            // The prize they have secured is the *previous* question's prize
+            const safePrize = PRIZES[questionIndex - 1]; 
+            safePrizeDisplay.textContent = safePrize;
+            
+            safeSpotPopup.classList.remove('hidden');
+        }
+
+        /** Finalizes the game based on player's choice at a secure point. */
+        function stopGame(accept) {
+            safeSpotPopup.classList.add('hidden');
+            if (accept) {
+                // Player accepted the offer
+                endGame('walkaway');
+            } else {
+                // Player rejected the offer and continues
+                // *** FIX: Explicitly ensure game is active and visible before loading question ***
+                isGameActive = true; 
+                gameArea.classList.remove('hidden'); 
+                resultMessage.classList.add('hidden'); 
+                
+                // Manually re-enable buttons that were not hidden by 50:50, just in case they were disabled before the pop-up
+                answerButtons.forEach(btn => {
+                    if (!btn.classList.contains('hidden-by-5050')) {
+                        btn.disabled = false;
+                    }
+                });
+
+                loadQuestion(); 
+            }
+        }
+
+
+        /** Checks the user's selected answer. */
+        function checkAnswer(selectedKey) {
+            if (!isGameActive) return;
+
+            const currentQ = currentQuestions[questionIndex];
+            const selectedButton = document.getElementById(selectedKey);
+
+            // Disable all buttons and lifelines
+            answerButtons.forEach(btn => btn.disabled = true);
+            lifeline5050Btn.disabled = true;
+            lifelineAudienceBtn.disabled = true;
+
+
+            if (selectedKey === currentQ.correct) {
+                selectedButton.classList.add('correct');
+                resultMessage.textContent = "CORRECT! 🎉 Moving to the next prize level.";
+                resultMessage.style.backgroundColor = 'rgba(0, 128, 0, 0.2)';
+                resultMessage.classList.remove('hidden');
+
+                setTimeout(() => {
+                    questionIndex++;
+                    loadQuestion();
+                }, 1500);
+
+            } else {
+                selectedButton.classList.add('incorrect');
+                // Highlight the correct answer
+                document.getElementById(currentQ.correct).classList.add('correct');
+                resultMessage.textContent = `INCORRECT! 💀 The correct answer was ${currentQ.correct}.`;
+                resultMessage.style.backgroundColor = 'rgba(139, 0, 0, 0.2)';
+                resultMessage.classList.remove('hidden');
+
+                setTimeout(() => {
+                    endGame('loss');
+                }, 2500);
+            }
+        }
+
+        /** Ends the game and displays the final message. */
+        function endGame(state) {
+            isGameActive = false;
+            
+            let finalPrize = "£0";
+            let message;
+            
+            if (state === 'win') {
+                finalPrize = PRIZES[PRIZES.length - 1]; // £1,000,000
+                message = `CONGRATULATIONS! 🏆 You answered all questions and won the jackpot of ${finalPrize}!`;
+                resultMessage.style.backgroundColor = 'rgba(255, 102, 0, 0.4)';
+            } else if (state === 'walkaway') {
+                // Prize is the amount they were offered (Q4 or Q9 prize)
+                finalPrize = PRIZES[questionIndex - 1]; 
+                message = `WISE DECISION! 👍 You walked away safely with ${finalPrize}.`;
+                resultMessage.style.backgroundColor = 'rgba(0, 70, 128, 0.4)'; // Blue/safe color
+            } else { // state === 'loss'
+                // Determine the highest secured prize (£1k or £32k) based on the *last successfully completed* secure point.
+                if (questionIndex > 9) { // Answered Q10+ incorrectly
+                    finalPrize = PRIZES[9]; // £32,000
+                } else if (questionIndex > 4) { // Answered Q5-Q9 incorrectly
+                    finalPrize = PRIZES[4]; // £1,000
+                } else {
+                    finalPrize = "£0";
+                }
+                message = `GAME OVER. 😭 You walk away with your secured prize of ${finalPrize}.`;
+                resultMessage.style.backgroundColor = 'rgba(139, 0, 0, 0.4)';
+            }
+
+            currentPrize.textContent = finalPrize;
+            questionText.textContent = message;
+            gameArea.classList.add('hidden');
+            resultMessage.classList.remove('hidden');
+            startButton.textContent = 'Play Again';
+        }
+
+        // --- 6. LIFELINE FUNCTIONS ---
+
+        /** Removes two incorrect answers. */
+        function use5050() {
+            if (!lifelines['5050'] || !isGameActive) return;
+
+            const currentQ = currentQuestions[questionIndex];
+            const correctKey = currentQ.correct;
+            
+            let incorrectKeys = allAnswerKeys.filter(key => key !== correctKey);
+            
+            // Shuffle and select two incorrect keys to remove
+            const keysToRemove = shuffleArray(incorrectKeys).slice(0, 2);
+
+            // Hide the answers and disable them
+            keysToRemove.forEach(key => {
+                const btn = document.getElementById(key);
+                btn.classList.add('hidden-by-5050');
+                btn.disabled = true;
+            });
+
+            // Update lifeline state and button
+            lifelines['5050'] = false;
+            lifeline5050Btn.disabled = true;
+            lifeline5050Btn.textContent = '50:50 (USED)';
+        }
+
+        /** Displays the warning message. */
+        function useAudience() {
+            if (!lifelines['audience'] || !isGameActive) return;
+            
+            // Show the decorative warning pop-up
+            audiencePopup.classList.remove('hidden');
+            
+            // Update lifeline state and button
+            lifelines['audience'] = false;
+            lifelineAudienceBtn.disabled = true;
+            lifelineAudienceBtn.textContent = 'Audience (USED)';
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadLevel);
+    </script>
+</body>
+</html>
